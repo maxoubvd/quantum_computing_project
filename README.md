@@ -64,6 +64,10 @@ python main_gui.py
 - Qiskit Aer: Quantum simulator backend
 - Tkinter: For GUI (built-in with Python)
 
+## Quantum circuit
+
+At the end of a game, an picture of the Quantum circuit is generated (quantum_circuit.png)
+
 ## AI Tools
 
 1. AI is used to generate the structure of the Minimax algorithm and to integrate the Tkinter library, saving time on the interface.
