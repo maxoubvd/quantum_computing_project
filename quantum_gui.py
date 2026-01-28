@@ -17,7 +17,7 @@ class QuantumGUI:
         tk.Button(self.root, text="COLLAPSE", bg="orange", command=self.do_collapse).grid(row=3, column=0, columnspan=3, sticky="we")
 
     def click(self, i):
-        # On ne peut pas cliquer sur une case déjà fixée (X ou O définitif)
+        # You cannot click on a square that has already been fixed (definitive X or O)
         if self.btns[i]['text'] in ['X', 'O'] or i in self.sel: return
         
         self.sel.append(i)
@@ -30,7 +30,7 @@ class QuantumGUI:
             self.root.after(500, self.ai_turn)
 
     def ai_turn(self):
-        # L'IA peut jouer sur toute case non fixée, même s'il y a déjà un "?"
+        # The AI ​​can play on any unfixed square, even if there is already a "?".
         texts = [b['text'] for b in self.btns]
         move = self.ai.get_move(texts)
         if move:

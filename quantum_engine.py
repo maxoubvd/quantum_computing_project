@@ -7,7 +7,7 @@ class QuantumEngine:
         self.simulator = AerSimulator()
 
     def add_move(self, s1, s2):
-        # On prépare l'état pour qu'un SEUL des deux qubits soit à 1 (50/50)
+        # We prepare the state so that ONLY ONE of the two qubits is at 1 (50/50)
         self.circuit.x(s2) 
         self.circuit.h(s1)
         self.circuit.cx(s1, s2)
@@ -21,7 +21,7 @@ class QuantumEngine:
         self.circuit.measure(range(9), range(9))
         job = self.simulator.run(self.circuit, shots=1)
         res = list(job.result().get_counts().keys())[0][::-1]
-        self.circuit = QuantumCircuit(9, 9) # Reset pour la suite si besoin
+        self.circuit = QuantumCircuit(9, 9) # Reset for the next steps if needed
         return res
 
 class QuantumManager:
@@ -36,7 +36,7 @@ class QuantumManager:
 
     def get_board(self):
         bits = self.engine.collapse()
-        # On remplit le plateau selon les résultats de la mesure
+        # We fill the tray according to the measurement results
         for m in self.history:
             s1, s2 = m['sq']
             if bits[s1] == '1': self.fixed_marks[s1] = m['p']
