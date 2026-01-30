@@ -19,9 +19,17 @@ class QuantumGUI:
     def click(self, i):
         # You cannot click on a square that has already been fixed (definitive X or O)
         if self.btns[i]['text'] in ['X', 'O'] or i in self.sel: return
+
+        # You cannot click on a square that is already in a superposed state
+        if self.btns[i]['text'] == 'XO': return
         
         self.sel.append(i)
-        self.btns[i].config(text=f"{self.player}?", bg="cyan")
+        # If square already has O? (AI's superposition), create mixed superposition XO
+        if self.btns[i]['text'] == 'O?':
+            self.btns[i].config(text='XO', bg='red')
+        # Otherwise, show player's superposition state
+        else:
+            self.btns[i].config(text=f"{self.player}?", bg="cyan")
         
         if len(self.sel) == 2:
             self.mgr.record(self.sel[0], self.sel[1], self.player)
@@ -37,7 +45,12 @@ class QuantumGUI:
             self.mgr.record(move[0], move[1], 'O')
             for m in move: 
                 if self.btns[m]['text'] not in ['X', 'O']:
-                    self.btns[m].config(text="O?", bg="pink")
+                    # If square already has X? (player's superposition), create mixed superposition XO
+                    if self.btns[m]['text'] == 'X?':
+                        self.btns[m].config(text='XO', bg='red')
+                    # Otherwise, show AI's superposition state
+                    else:
+                        self.btns[m].config(text="O?", bg="pink")
             self.player = 'X'
 
     def check_winner(self, b):

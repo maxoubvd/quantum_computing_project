@@ -36,10 +36,18 @@ class QuantumManager:
 
     def get_board(self):
         bits = self.engine.collapse()
-        # We fill the tray according to the measurement results
+        # We fill the board according to the measurement results
+        # Process each move: for entangled qubits, exactly one should be '1'
         for m in self.history:
             s1, s2 = m['sq']
-            if bits[s1] == '1': self.fixed_marks[s1] = m['p']
-            elif bits[s2] == '1': self.fixed_marks[s2] = m['p']
+            # Check which qubit measured as '1' and place the mark there
+            # Only place a mark if the square is still empty (handle overlapping superpositions)
+            if bits[s1] == '1' and self.fixed_marks[s1] == ' ':
+                self.fixed_marks[s1] = m['p']
+            elif bits[s2] == '1' and self.fixed_marks[s2] == ' ':
+                self.fixed_marks[s2] = m['p']
+            # If both are '0' (shouldn't happen with proper entanglement), pick s1
+            elif bits[s1] == '0' and bits[s2] == '0' and self.fixed_marks[s1] == ' ':
+                self.fixed_marks[s1] = m['p']
         self.history = [] 
         return self.fixed_marks
