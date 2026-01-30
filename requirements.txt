@@ -1,2 +1,4 @@
 qiskit
 qiskit_aer
+pylatexenc
+
