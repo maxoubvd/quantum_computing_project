@@ -45,8 +45,7 @@ class QuantumGUI:
                 self.btns[i].config(text=f"{self.player}?", bg="cyan")
 
             if self.nbr_free_squares(self.player) < 2:
-                tk.sleep(500)
-                self.do_collapse()
+                self.root.after(500, self.do_collapse)
 
             elif len(self.sel) == 2:
                 self.mgr.record(self.sel[0], self.sel[1], self.player)
