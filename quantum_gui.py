@@ -16,26 +16,43 @@ class QuantumGUI:
         for i, btn in enumerate(self.btns): btn.grid(row=i//3, column=i%3)
         tk.Button(self.root, text="COLLAPSE", bg="orange", command=self.do_collapse).grid(row=3, column=0, columnspan=3, sticky="we")
 
-    def click(self, i):
-        # You cannot click on a square that has already been fixed (definitive X or O)
-        if self.btns[i]['text'] in ['X', 'O'] or i in self.sel: return
+    def nbr_free_squares(self):
+        squares = [b['text'] for b in self.btns if (b['text'] != 'X?' and b['text'] != 'O?' and b['text'] != 'XO')]
+        nbr = len(squares)
+        return nbr
 
-        # You cannot click on a square that is already in a superposed state
-        if self.btns[i]['text'] == 'XO': return
-        
-        self.sel.append(i)
-        # If square already has O? (AI's superposition), create mixed superposition XO
-        if self.btns[i]['text'] == 'O?':
-            self.btns[i].config(text='XO', bg='red')
-        # Otherwise, show player's superposition state
-        else:
-            self.btns[i].config(text=f"{self.player}?", bg="cyan")
-        
-        if len(self.sel) == 2:
+    def click(self, i):
+        if self.nbr_free_squares() < 2:
+            self.do_collapse()
+        elif len(self.sel) == 2:
             self.mgr.record(self.sel[0], self.sel[1], self.player)
             self.sel = []
             self.player = 'O'
             self.root.after(500, self.ai_turn)
+        else:
+            # You cannot click on a square that has already been fixed (definitive X or O)
+            if self.btns[i]['text'] in ['X', 'O'] or i in self.sel: return
+
+            # You cannot click on a square that is already in a superposed state
+            if self.btns[i]['text'] == 'XO': return
+
+            self.sel.append(i)
+            # If square already has O? (AI's superposition), create mixed superposition XO
+            if self.btns[i]['text'] == 'O?':
+                self.btns[i].config(text='XO', bg='red')
+            # Otherwise, show player's superposition state
+            else:
+                self.btns[i].config(text=f"{self.player}?", bg="cyan")
+
+            if self.nbr_free_squares() < 2:
+                tk.sleep(500)
+                self.do_collapse()
+
+            elif len(self.sel) == 2:
+                self.mgr.record(self.sel[0], self.sel[1], self.player)
+                self.sel = []
+                self.player = 'O'
+                self.root.after(500, self.ai_turn)
 
     def ai_turn(self):
         # The AI ​​can play on any unfixed square, even if there is already a "?".
