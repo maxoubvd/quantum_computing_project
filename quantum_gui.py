@@ -16,13 +16,13 @@ class QuantumGUI:
         for i, btn in enumerate(self.btns): btn.grid(row=i//3, column=i%3)
         tk.Button(self.root, text="COLLAPSE", bg="orange", command=self.do_collapse).grid(row=3, column=0, columnspan=3, sticky="we")
 
-    def nbr_free_squares(self):
-        squares = [b['text'] for b in self.btns if (b['text'] != 'X?' and b['text'] != 'O?' and b['text'] != 'XO')]
-        nbr = len(squares)
+    def nbr_free_squares(self, player):
+        free_squares = [b['text'] for b in self.btns if (b['text'] != player + '?' and b['text'] != 'XO')]
+        nbr = len(free_squares)
         return nbr
 
     def click(self, i):
-        if self.nbr_free_squares() < 2:
+        if self.nbr_free_squares(self.player) < 2:
             self.do_collapse()
         elif len(self.sel) == 2:
             self.mgr.record(self.sel[0], self.sel[1], self.player)
@@ -44,7 +44,7 @@ class QuantumGUI:
             else:
                 self.btns[i].config(text=f"{self.player}?", bg="cyan")
 
-            if self.nbr_free_squares() < 2:
+            if self.nbr_free_squares(self.player) < 2:
                 tk.sleep(500)
                 self.do_collapse()
 
