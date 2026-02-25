@@ -11,10 +11,11 @@ class QuantumGUI:
         self.ai = QuantumAI()
         self.sel = []
         self.player = 'X'
+        self.collapse_count = 4
         self.btns = [tk.Button(self.root, text=' ', font=('Arial', 20), height=2, width=5,
                      command=lambda i=i: self.click(i)) for i in range(9)]
         for i, btn in enumerate(self.btns): btn.grid(row=i//3, column=i%3)
-        tk.Button(self.root, text="COLLAPSE", bg="orange", command=self.do_collapse).grid(row=3, column=0, columnspan=3, sticky="we")
+        tk.Button(self.root, text="COLLAPSE", bg="orange", command=self.do_collapse(on_click=True)).grid(row=3, column=0, columnspan=3, sticky="we")
 
     def nbr_free_squares(self, player):
         free_squares = [b['text'] for b in self.btns if (b['text'] != player + '?' and b['text'] != 'XO')]
@@ -28,6 +29,8 @@ class QuantumGUI:
             self.mgr.record(self.sel[0], self.sel[1], self.player)
             self.sel = []
             self.player = 'O'
+            if self.check_superposition():
+                self.root.after(200, lambda: self.do_collapse(bypass=True))
             self.root.after(500, self.ai_turn)
         else:
             # You cannot click on a square that has already been fixed (definitive X or O)
@@ -45,12 +48,14 @@ class QuantumGUI:
                 self.btns[i].config(text=f"{self.player}?", bg="cyan")
 
             if self.nbr_free_squares(self.player) < 2:
-                self.root.after(500, self.do_collapse)
+                self.root.after(500, self.do_collapse(bypass=True))
 
             elif len(self.sel) == 2:
                 self.mgr.record(self.sel[0], self.sel[1], self.player)
                 self.sel = []
                 self.player = 'O'
+                if self.check_superposition():
+                    self.do_collapse(bypass=True)
                 self.root.after(500, self.ai_turn)
 
     def ai_turn(self):
@@ -67,6 +72,8 @@ class QuantumGUI:
                     # Otherwise, show AI's superposition state
                     else:
                         self.btns[m].config(text="O?", bg="pink")
+            if self.check_superposition():
+                self.root.after(200, lambda: self.do_collapse(bypass=True))
             self.player = 'X'
 
     def check_winner(self, b):
@@ -77,11 +84,21 @@ class QuantumGUI:
                 winners.add(b[l[0]])
         return list(winners)
 
-    def do_collapse(self):
-        board = self.mgr.get_board()
-        for i in range(9):
-            self.btns[i].config(text=board[i], bg="SystemButtonFace")
-        
+    def do_collapse(self, on_click=False, bypass=False):
+        if (self.collapse_count > 0 and on_click) or bypass:
+            board = self.mgr.get_board()
+            if on_click:
+                self.collapse_count -= 1
+                msg = f"You have {self.collapse_count} collapse left"
+                messagebox.showinfo("Collapse Action", msg)
+            for i in range(9):
+                self.btns[i].config(text=board[i], bg="SystemButtonFace")
+            self.manage_winner(board)
+        else:
+            msg = f"You have no collapse left !"
+            messagebox.showinfo("Collapse Action", msg)
+    
+    def manage_winner(self, board):
         winners = self.check_winner(board)
         if winners:
             msg = f"Winner(s): {' and '.join(winners)}" if len(winners) > 1 else f"Winner: {winners[0]}"
@@ -92,6 +109,12 @@ class QuantumGUI:
             self.root.destroy()
         else:
             messagebox.showinfo("Quantum Info", "No winner. The board is now classical. Keep playing!")
+
+    def check_superposition(self):
+        for b in self.btns:
+            if b['text'] == "XO":
+                return True
+        return False
 
 if __name__ == "__main__":
     QuantumGUI().root.mainloop()
