@@ -11,6 +11,7 @@ class QuantumGUI:
         self.ai = QuantumAI()
         self.sel = []
         self.player = 'X'
+        self.collapse_count = 3
         self.btns = [tk.Button(self.root, text=' ', font=('Arial', 20), height=2, width=5,
                      command=lambda i=i: self.click(i)) for i in range(9)]
         for i, btn in enumerate(self.btns): btn.grid(row=i//3, column=i%3)
