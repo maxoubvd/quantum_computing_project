@@ -103,5 +103,11 @@ class QuantumGUI:
         else:
             messagebox.showinfo("Quantum Info", "No winner. The board is now classical. Keep playing!")
 
+    def check_superposition(self):
+        for b in self.btns:
+            if b['text'] == "XO":
+                return True
+        return False
+
 if __name__ == "__main__":
     QuantumGUI().root.mainloop()
