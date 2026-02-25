@@ -11,7 +11,7 @@ class QuantumGUI:
         self.ai = QuantumAI()
         self.sel = []
         self.player = 'X'
-        self.collapse_count = 3
+        self.collapse_count = 4
         self.btns = [tk.Button(self.root, text=' ', font=('Arial', 20), height=2, width=5,
                      command=lambda i=i: self.click(i)) for i in range(9)]
         for i, btn in enumerate(self.btns): btn.grid(row=i//3, column=i%3)
@@ -30,7 +30,7 @@ class QuantumGUI:
             self.sel = []
             self.player = 'O'
             if self.check_superposition():
-                self.do_collapse(bypass=True)
+                self.root.after(200, lambda: self.do_collapse(bypass=True))
             self.root.after(500, self.ai_turn)
         else:
             # You cannot click on a square that has already been fixed (definitive X or O)
@@ -48,7 +48,7 @@ class QuantumGUI:
                 self.btns[i].config(text=f"{self.player}?", bg="cyan")
 
             if self.nbr_free_squares(self.player) < 2:
-                self.root.after(500, self.do_collapse)
+                self.root.after(500, self.do_collapse(bypass=True))
 
             elif len(self.sel) == 2:
                 self.mgr.record(self.sel[0], self.sel[1], self.player)
@@ -73,7 +73,7 @@ class QuantumGUI:
                     else:
                         self.btns[m].config(text="O?", bg="pink")
             if self.check_superposition():
-                self.do_collapse(bypass=True)
+                self.root.after(200, lambda: self.do_collapse(bypass=True))
             self.player = 'X'
 
     def check_winner(self, b):
@@ -85,14 +85,14 @@ class QuantumGUI:
         return list(winners)
 
     def do_collapse(self, on_click=False, bypass=False):
-        if self.collapse_count > 0 and bypass:
+        if (self.collapse_count > 0 and on_click) or bypass:
             board = self.mgr.get_board()
             if on_click:
                 self.collapse_count -= 1
+                msg = f"You have {self.collapse_count} collapse left"
+                messagebox.showinfo("Collapse Action", msg)
             for i in range(9):
                 self.btns[i].config(text=board[i], bg="SystemButtonFace")
-            msg = f"You have {self.collapse_count} collapse left"
-            messagebox.showinfo("Collapse Action", msg)
             self.manage_winner(board)
         else:
             msg = f"You have no collapse left !"
