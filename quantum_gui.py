@@ -79,10 +79,19 @@ class QuantumGUI:
         return list(winners)
 
     def do_collapse(self):
-        board = self.mgr.get_board()
-        for i in range(9):
-            self.btns[i].config(text=board[i], bg="SystemButtonFace")
-        
+        if self.collapse_count > 0:
+            board = self.mgr.get_board()
+            self.collapse_count -= 1
+            for i in range(9):
+                self.btns[i].config(text=board[i], bg="SystemButtonFace")
+            msg = f"You have {self.collapse_count} collapse left"
+            messagebox.showinfo("Collapse Action", msg)
+            self.manage_winner(board)
+        else:
+            msg = f"You have no collapse left !"
+            messagebox.showinfo("Collapse Action", msg)
+    
+    def manage_winner(self, board):
         winners = self.check_winner(board)
         if winners:
             msg = f"Winner(s): {' and '.join(winners)}" if len(winners) > 1 else f"Winner: {winners[0]}"
