@@ -15,7 +15,7 @@ class QuantumGUI:
         self.btns = [tk.Button(self.root, text=' ', font=('Arial', 20), height=2, width=5,
                      command=lambda i=i: self.click(i)) for i in range(9)]
         for i, btn in enumerate(self.btns): btn.grid(row=i//3, column=i%3)
-        tk.Button(self.root, text="COLLAPSE", bg="orange", command=self.do_collapse).grid(row=3, column=0, columnspan=3, sticky="we")
+        tk.Button(self.root, text="COLLAPSE", bg="orange", command=self.do_collapse(on_click=True)).grid(row=3, column=0, columnspan=3, sticky="we")
 
     def nbr_free_squares(self, player):
         free_squares = [b['text'] for b in self.btns if (b['text'] != player + '?' and b['text'] != 'XO')]
@@ -29,6 +29,8 @@ class QuantumGUI:
             self.mgr.record(self.sel[0], self.sel[1], self.player)
             self.sel = []
             self.player = 'O'
+            if self.check_superposition():
+                self.do_collapse(bypass=True)
             self.root.after(500, self.ai_turn)
         else:
             # You cannot click on a square that has already been fixed (definitive X or O)
@@ -52,6 +54,8 @@ class QuantumGUI:
                 self.mgr.record(self.sel[0], self.sel[1], self.player)
                 self.sel = []
                 self.player = 'O'
+                if self.check_superposition():
+                    self.do_collapse(bypass=True)
                 self.root.after(500, self.ai_turn)
 
     def ai_turn(self):
@@ -68,6 +72,8 @@ class QuantumGUI:
                     # Otherwise, show AI's superposition state
                     else:
                         self.btns[m].config(text="O?", bg="pink")
+            if self.check_superposition():
+                self.do_collapse(bypass=True)
             self.player = 'X'
 
     def check_winner(self, b):
@@ -78,10 +84,11 @@ class QuantumGUI:
                 winners.add(b[l[0]])
         return list(winners)
 
-    def do_collapse(self):
-        if self.collapse_count > 0:
+    def do_collapse(self, on_click=False, bypass=False):
+        if self.collapse_count > 0 and bypass:
             board = self.mgr.get_board()
-            self.collapse_count -= 1
+            if on_click:
+                self.collapse_count -= 1
             for i in range(9):
                 self.btns[i].config(text=board[i], bg="SystemButtonFace")
             msg = f"You have {self.collapse_count} collapse left"
